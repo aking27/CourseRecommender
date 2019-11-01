@@ -21,7 +21,6 @@ class CourseArea extends React.Component {
     console.log(this.state.buttonColor);
     this.setState({buttonColor: !this.state.buttonColor});
 
-
     // console.log("childData: " + childData + " " + "sectionList length: " + this.state.sectionList.length);
   }
   dislikeCourse(childData){ // course that's disliked
