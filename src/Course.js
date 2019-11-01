@@ -29,7 +29,6 @@ class Course extends React.Component {
         btnColor = "dark";
 
       }
-console.log(this.props.buttonColor);
     return (
               <>
 
@@ -47,13 +46,13 @@ this.setState({likeButton: "btn btn-secondary"})
 <Button variant="primary">Primary</Button>
 ()=>this.changeColor()
 */}
-<Card style={{width: '75%', marginTop: '5px', marginBottom: '5px'}}>
+                      <Card style={{width: '100%', marginTop: '5px', marginBottom: '5px'}}>
                         <Card.Body>
                           <Card.Title>{this.props.data.name}</Card.Title>
                           <Card.Subtitle className="mb-2 text-muted">{this.props.data.number} - {this.getCredits()}</Card.Subtitle>
-                          <Button variant="success" onClick={ ()=>this.props.onAddCourse(this.props.data.name) }>Like</Button>
-                          <Button variant="secondary"  style={{marginLeft: '5px'}}>Neutral</Button>
-                          <Button variant="danger" onClick={()=>this.props.dislikeCourse(this.props.data.name)} style={{marginLeft: '5px'}}>Dislike</Button>
+                          <Button variant="success" style={{marginLeft: '5px', width: '30%'}} onClick={ ()=>this.props.onAddCourse(this.props.data.subject) }>Like</Button>
+                          <Button variant="secondary"  style={{marginLeft: '5px', width: '30%'}}>Neutral</Button>
+                          <Button variant="danger" onClick={()=>this.props.dislikeCourse(this.props.data.name)} style={{marginLeft: '5px', width: '30%'}}>Dislike</Button>
                         </Card.Body>
                       </Card>
 
