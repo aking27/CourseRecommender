@@ -20,13 +20,13 @@ class AreasOfInterest extends React.Component {
   render() {
     return (
       <>
-        <Card style={{width: '75%', marginTop: '5px', marginBottom: '5px'}}>
+        <Card style={{width: '100%', marginTop: '5px', marginBottom: '5px'}}>
           <Card.Body>
             <Card.Title>{this.getKeywords()}</Card.Title>
             <Card.Subtitle className="mb-2 text-muted">Rate this group of keywords:</Card.Subtitle>
-            <button type="button" class="btn btn-success">Like</button> {/*on click want to send data*/}
-            <button type="button" class="btn btn-secondary">Neutral</button>
-            <button type="button" class="btn btn-danger" style={{marginLeft: '5px'}}>Dislike</button>
+            <button type="button" class="btn btn-success" style={{width: '30%'}}>Like</button> {/*on click want to send data*/}
+            <button type="button" class="btn btn-secondary" style={{width: '30%'}}>Neutral</button>
+            <button type="button" class="btn btn-danger" style={{marginLeft: '5px', width:'30%'}}>Dislike</button>
           </Card.Body>
         </Card>
       </>
