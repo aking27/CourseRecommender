@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.css';
 import CourseArea from './CourseArea';
-import AreasOfInterest from './AreasOfInterest';
 import Interest from './Interest';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -26,18 +25,36 @@ class App extends React.Component {
       sectionList: [],
       courseName: [],
       dislikeList: [],
-      show: false
+      show: false,
+      likedKeywords: [],
+      recommendation: [],
+      dislikedKeywords: []
     };
     this.callbackFunction = this.callbackFunction.bind(this);
+    this.interestCallback = this.interestCallback.bind(this);
     this.onAddCourse = this.onAddCourse.bind(this);
     this.dislikeCourse = this.dislikeCourse.bind(this);
     this.dislikeCallback = this.dislikeCallback.bind(this);
+    this.onAddKeyword = this.onAddKeyword.bind(this);
+    this.onDeleteKeyword = this.onDeleteKeyword.bind(this);
+    this.interestDislikeCallback = this.interestDislikeCallback.bind(this);
 
   }
-  callbackFunction(childData){
+  callbackFunction(childData){ //liked course
     this.setState({sectionList: this.state.sectionList.concat(childData)});
-    // this.setState({courseName: this.state.courseName.concat(data2)});
-    console.log("like: " + childData + " " + "sectionList length: " + this.state.sectionList.length);
+    console.log("course like: " + childData);
+  }
+  dislikeCallback(childData){ // course that's disliked
+    this.setState({dislikeList: this.state.dislikeList.concat(childData)});
+    console.log("course dislike: " + childData);
+  }
+  interestCallback(childData){ // liked keyword
+    this.setState({likedKeywords: this.state.likedKeywords.concat(childData)});
+    console.log("interest like: " + childData);
+  }
+  interestDislikeCallback(childData){  // disliked keyword
+    this.setState({dislikedKeywords: this.state.dislikedKeywords.concat(childData)});
+    console.log("interest dislike: " + childData);
   }
   async componentDidMount() {
     const response = await fetch('https://mysqlcs639.cs.wisc.edu/classes/');
@@ -47,21 +64,18 @@ class App extends React.Component {
     const json = await response.json();
     this.setState({filteredCourses: json});
   }
-  onAddCourse(childData){
-      this.setState({sectionList: this.state.sectionList.concat(childData)});
-      // this.props.callbackFunction(childData, this.props.data.name);
-      // console.log("childData: " + childData + " " + "sectionList length: " + this.state.sectionList.length);
+  onAddKeyword(childData){ // liked keyword
+    this.setState({likedKeywords: this.state.likedKeywords.concat(childData)});
   }
-  dislikeCourse(childData){ // course that's disliked -- might not need this in APP
+  onDeleteKeyword(childData){ // disliked keyword
+    this.setState({dislikedKeywords: this.state.dislikedKeywords.concat(childData)});
+  }
+  onAddCourse(childData){ //liked course
+    this.setState({sectionList: this.state.sectionList.concat(childData)});
+  }
+  dislikeCourse(childData){ // course that's disliked
     this.setState({dislikeList: this.state.dislikeList.concat(childData)});
-    this.props.dislikeCallback(childData);
   }
-  dislikeCallback(childData){
-    this.setState({dislikeList: this.state.dislikeList.concat(childData)});
-    // this.setState({courseName: this.state.courseName.concat(data2)});
-    console.log("dislike: " + childData + " " + "dislikeList length: " + this.state.dislikeList.length);
-  }
-
   showModal = () => {
     this.setState({ show: true });
   }
@@ -74,43 +88,40 @@ class App extends React.Component {
     let courses = [];
 
     for(const course of Object.entries(this.state.filteredCourses)) {
-
-      //  console.log("check");
-      // if(course[1].subject === this.state.sectionList[1]){
         courses.push (course[1]);
-      // }
     }
-    // let iterate = this.state.sectionList.length;
-    // let liked = [];
-    // for(const course of iterate) {
-    //   liked.push (this.state.sectionList[course]);
-    //   if(this.state.sectionList[course] == this.state.filteredCourses.subject){
-    //     console.log("APP");
-    //   }
-    //
-    // }
-    // let recommendation = "Programming 1";
-    // console.log(this.state.sectionList[1]);
-    // if(this.state.sectionList[1] === recommendation){
-    //   return this.state.sectionList;
-    // }
-    // return courses;
     let recommendation = [];
-    let test;
-    for(var index = 0; index < courses.length; index++){
-
-      if(courses[index].subject === this.state.sectionList[1]){
-        if(recommendation.length == 0){
-          recommendation.push(courses[index].name);
-        }
-        recommendation.push(", " + courses[index].name);
-        test = courses[index].name;
-        console.log(courses[index].name);
+    for(var index = 0; index < courses.length; index++){ //add the courses and their descriptions
+      if(courses[index].subject === this.state.sectionList[1] || courses[index].name === this.state.likedKeywords[1]){
+        recommendation.push(courses[index].name + ":" + courses[index].description);
       }
     }
-    return recommendation;
-  }
+  return recommendation;
+}
   render() {
+    var recommended = this.courseRecommender();
+    var rows = [];
+
+    for (let i = 0; i < recommended.length; i++) { // checks what needs to be displayed
+      var disliked = false; //if false, display, else don't
+      var dislikedKeywordAdd = false;
+       for(let j = 0; j < this.state.dislikeList.length; j++){
+         if(recommended[i].split(":")[0] === this.state.dislikeList[j]){ // check if it exists in recommended
+           disliked = true; // disliked, so remove from list
+         }
+       }
+       for(let l = 0; l < this.state.dislikedKeywords.length; l++){
+         if(recommended[i].split(":")[0] === this.state.dislikedKeywords[l]){ // check if it exists in recommended
+           dislikedKeywordAdd = true; //disliked, so remove from list
+         }
+       }
+
+       if (!disliked && !dislikedKeywordAdd) { //style the display
+         rows.push(<h5>{recommended[i].split(":")[0]}</h5>);
+         rows.push(<hr style={{borderWidth: '1px', borderColor: '#000000'}}/>);
+         rows.push(<p>{recommended[i].split(":")[1]}</p>);
+       }
+    }
     return (
       <>
 
@@ -120,14 +131,13 @@ class App extends React.Component {
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossOrigin="anonymous"
         />
-{/**/}
-      {/*Sidebar setCourses={(courses) => this.setCourses(courses)} courses={this.state.allCourses} subjects={this.state.subjects} cartData={this.state.sectionList} cartClass={this.state.courseName}/>*/}
         <div style={{marginTop: '10px'}}>
           <h1 style={{textAlign: 'center'}}>Course Recommender</h1>
           <p style={{textAlign: 'center', marginTop: '20px'}}>Are you stuck trying to decide what courses you should take?</p>
           <p style={{textAlign: 'center'}}>Look no further! Below, is a list of courses you have previously taken. There is also a list of keywords.</p>
           <p style={{textAlign: 'center'}}>For you to get your recommendation, all you need to do is rate your previously taken courses as well as the keyword groups.</p>
           <p style={{textAlign: 'center'}}>Then, click the generate button to see your recommendations!</p>
+          <h6 style={{textAlign: 'center', marginBottom: '30px'}}>When making your ratings, double-click the 'Like' or 'Dislike' buttons.</h6>
         </div>
         <div style={{marginTop: '20px'}}>
           <Container>
@@ -139,23 +149,23 @@ class App extends React.Component {
                 </Col>
                 <Col>
                   <h2 style={{marginBottom:'20px', textAlign: 'center'}}>Your Areas of Interest:</h2>
-                  <Interest data={this.state.filteredCourses}/>
+                  <Interest data={this.state.filteredCourses} interestCallback={this.interestCallback} onAddKeyword={this.onAddKeyword}
+                  onDeleteKeyword={this.onDeleteKeyword} interestDislikeCallback={this.interestDislikeCallback}/>
                 </Col>
                 <Col style={{marginLeft:"10px"}}>
                   <h2>Click to generate your recommended courses:</h2>
                   <Modal show={this.state.show}>
                     <Modal.Header>
-                      <h4 class="modal-title">Your recommended courses:</h4>
+                      <h4 className="modal-title">Your recommended courses:</h4>
                     </Modal.Header>
                     <Modal.Body>
-                      {this.courseRecommender()}
-                      <p>state: </p>{this.state.sectionList}
+                      <p>{rows}</p>
                     </Modal.Body>
                     <Modal.Footer>
                       <Button variant="secondary" onClick={this.hideModal}>Close</Button>
                     </Modal.Footer>
                   </Modal>
-                  <Button variant="primary" style={{marginTop: '5px', marginLeft: '10px'}} onClick={this.showModal}>Generate</Button>
+                  <Button variant="primary" style={{marginTop: '5px'}} onClick={this.showModal}>Generate</Button>
                 </Col>
             </Row>
           </Container>
